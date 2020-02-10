@@ -1,8 +1,35 @@
-version: '2'
-
-
+version: '3'
 services:
-  hotel:
-    build: . 
-    ports:
-      - '30080:8080'
+  hk-nginx:
+   container_name: hk-nginx
+   image: nginx:1.13
+   restart: always
+   ports:
+   - 80:80
+   - 443:443
+   volumes:
+   - ./nginx/conf.d:/etc/nginx/conf.d
+   depends_on:
+   - app
+ 
+  hk-mysql:
+   container_name: hk-mysql
+   image: mysql/mysql-server:5.7
+   environment:
+    MYSQL_DATABASE: test
+    MYSQL_ROOT_PASSWORD: hellokoding
+    MYSQL_ROOT_HOST: '%'
+   ports:
+   - "3309:3306"
+   restart: always
+  
+  app:
+    restart: always
+    build: .
+    volumes:
+      - ./app:/app
+      - ~/.m2:/root/.m2
+    expose:
+      - "8080"
+    depends_on:
+      - hk-mysql
